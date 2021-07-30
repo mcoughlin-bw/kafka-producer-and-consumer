@@ -1,0 +1,18 @@
+package com.example.kafka.model;
+
+public enum CallType {
+    TOLLFREE_IN,
+    TOLLFREE_OUT,
+    INTL_BLOCK,
+    EMERGENCY,
+    INFORMATION,
+    OTHER_N11,
+    OPERATOR,
+    INBOUND_TFOOS,
+    INTERNATIONAL_INTERNAL,
+    INTERNATIONAL,
+    UNDETERMINED,
+    LOCAL,
+    INTERSTATE,
+    INTRASTATE
+}
