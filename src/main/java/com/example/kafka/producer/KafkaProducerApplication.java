@@ -1,6 +1,7 @@
 package com.example.kafka.producer;
 
 import java.util.Date;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -23,6 +24,7 @@ public class KafkaProducerApplication {
     @Scheduled(fixedRate = 10_000)
     public void sendMessage() {
         final Call call = new Call();
+        call.setId(UUID.randomUUID().toString());
         call.setStartTime(new Date());
 
         final ListenableFuture<SendResult<String, Call>> future =

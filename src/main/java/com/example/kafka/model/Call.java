@@ -3,6 +3,7 @@ package com.example.kafka.model;
 import java.util.Date;
 
 public class Call {
+    private String id;
     private Direction direction;
     private Date startTime;
     private Date endTime;
@@ -19,6 +20,10 @@ public class Call {
 
     public Call() {
     }
+
+    public String getId() { return id; }
+
+    public void setId(String id) { this.id = id; }
 
     public Direction getDirection() {
         return direction;
