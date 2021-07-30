@@ -1,9 +1,10 @@
-package com.example.elasticsearch;
+package com.example.kafka.consumer;
 
 import com.example.kafka.model.Call;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import lombok.RequiredArgsConstructor;
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -11,7 +12,6 @@ import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.RequestOptions;
 import org.elasticsearch.client.RestHighLevelClient;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -21,26 +21,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.example.elasticsearch.ESConfig.LOCAL_ES_CLIENT;
-import static com.example.elasticsearch.ESConfig.AWS_ES_CLIENT;
-
 @Component
+@RequiredArgsConstructor
 public class ElasticSearchUpdater {
 
-    private final String indexName;
+    @Value("${call.es.index}")
+    private String indexName;
     private final RestHighLevelClient client;
-
-    public ElasticSearchUpdater(
-            @Value("calls-pr") String indexName,
-            @Qualifier(LOCAL_ES_CLIENT) RestHighLevelClient client
-    ) {
-        this.indexName = indexName;
-        this.client = client;
-    }
 
     /**
      * Sends a batch of records to ElasticSearch
      * Returns a set of failed ES record ids
+     *
      * @param batch
      * @return
      * @throws IOException
@@ -49,8 +41,8 @@ public class ElasticSearchUpdater {
         BulkRequest bulkRequest = new BulkRequest(indexName);
 
         bulkRequest.add(batch.stream()
-                    .map(this::createUpdateRequest)
-                    .collect(Collectors.toList()));
+                .map(this::createUpdateRequest)
+                .collect(Collectors.toList()));
 
         BulkResponse bulkResponse = null;
         try {
