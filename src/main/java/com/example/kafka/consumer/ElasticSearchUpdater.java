@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -49,6 +50,10 @@ public class ElasticSearchUpdater {
             bulkResponse = client.bulk(bulkRequest, RequestOptions.DEFAULT);
         } catch (IOException e) {
             e.printStackTrace();
+        }
+
+        if (bulkResponse == null) {
+            return Collections.emptySet();
         }
 
         return Arrays.stream(bulkResponse.getItems())
