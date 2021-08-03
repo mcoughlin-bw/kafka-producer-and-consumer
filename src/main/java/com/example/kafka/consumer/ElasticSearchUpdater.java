@@ -1,10 +1,12 @@
 package com.example.kafka.consumer;
 
-import com.example.kafka.model.Call;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import lombok.RequiredArgsConstructor;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequest;
 import org.elasticsearch.action.bulk.BulkResponse;
@@ -15,12 +17,12 @@ import org.elasticsearch.common.xcontent.XContentType;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import com.example.kafka.model.Call;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
+import lombok.RequiredArgsConstructor;
 
 @Component
 @RequiredArgsConstructor
@@ -35,20 +37,20 @@ public class ElasticSearchUpdater {
      * Returns a set of failed ES record ids
      *
      * @param batch
-     * @return
+     *
      * @throws IOException
      */
-    public Set<String> indexBatch(List<Call> batch) {
-        BulkRequest bulkRequest = new BulkRequest(indexName);
+    public Set<String> indexBatch(final List<Call> batch) {
+        final BulkRequest bulkRequest = new BulkRequest(indexName);
 
         bulkRequest.add(batch.stream()
-                .map(this::createUpdateRequest)
-                .collect(Collectors.toList()));
+                             .map(this::createUpdateRequest)
+                             .collect(Collectors.toList()));
 
         BulkResponse bulkResponse = null;
         try {
             bulkResponse = client.bulk(bulkRequest, RequestOptions.DEFAULT);
-        } catch (IOException e) {
+        } catch (final IOException e) {
             e.printStackTrace();
         }
 
@@ -57,25 +59,26 @@ public class ElasticSearchUpdater {
         }
 
         return Arrays.stream(bulkResponse.getItems())
-                .filter(BulkItemResponse::isFailed)
-                .map(BulkItemResponse::getId)
-                .collect(Collectors.toSet());
+                     .filter(BulkItemResponse::isFailed)
+                     .map(BulkItemResponse::getId)
+                     .collect(Collectors.toSet());
     }
 
-    private IndexRequest createUpdateRequest(Call record) {
+    private IndexRequest createUpdateRequest(final Call record) {
         return new IndexRequest(indexName)
-                .id(record.getId())
-                .source(pojoToJSON(record), XContentType.JSON);
+            .id(record.getId())
+            .type("insights_test")
+            .source(pojoToJSON(record), XContentType.JSON);
     }
 
-    private String pojoToJSON(Call call) {
-        ObjectMapper mapper = new ObjectMapper();
+    private String pojoToJSON(final Call call) {
+        final ObjectMapper mapper = new ObjectMapper();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
         String json = "";
 
         try {
             json = mapper.writeValueAsString(call);
-        } catch (JsonProcessingException e) {
+        } catch (final JsonProcessingException e) {
             e.printStackTrace();
         }
 

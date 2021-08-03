@@ -1,7 +1,5 @@
-package com.example.kafka.config;
+package com.example.kafka.consumer;
 
-import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.apache.http.HttpRequestInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -12,6 +10,7 @@ import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSSessionCredentials;
 import com.amazonaws.http.AWSRequestSigningApacheInterceptor;
+
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
@@ -25,12 +24,12 @@ public class ElasticSearchAuthConfig {
     public static final String SERVICE_REGION = "us-east-1";
 
     @Bean
-    public HttpRequestInterceptor httpRequestInterceptor(StsAssumeRoleCredentialsProvider credentialsProvider) {
-        AWS4Signer signer = new AWS4Signer();
+    public HttpRequestInterceptor httpRequestInterceptor(final StsAssumeRoleCredentialsProvider credentialsProvider) {
+        final AWS4Signer signer = new AWS4Signer();
         signer.setServiceName(SERVICE_NAME);
         signer.setRegionName(SERVICE_REGION);
         return new AWSRequestSigningApacheInterceptor(SERVICE_NAME, signer,
-                new AwsCredentialsProviderAdaptor(credentialsProvider));
+            new AwsCredentialsProviderAdaptor(credentialsProvider));
     }
 
     // Converts between the 2.0 and 1.0 Aws credentials
@@ -38,13 +37,13 @@ public class ElasticSearchAuthConfig {
     static class AwsCredentialsProviderAdaptor implements AWSCredentialsProvider {
         private final AwsCredentialsProvider credentialsProvider;
 
-        public AwsCredentialsProviderAdaptor(AwsCredentialsProvider credentialsProvider) {
+        public AwsCredentialsProviderAdaptor(final AwsCredentialsProvider credentialsProvider) {
             this.credentialsProvider = credentialsProvider;
         }
 
         @Override
         public AWSCredentials getCredentials() {
-            AwsCredentials credentials = credentialsProvider.resolveCredentials();
+            final AwsCredentials credentials = credentialsProvider.resolveCredentials();
 
             if (credentials instanceof AwsSessionCredentials) {
                 return new AWSSessionCredentials() {

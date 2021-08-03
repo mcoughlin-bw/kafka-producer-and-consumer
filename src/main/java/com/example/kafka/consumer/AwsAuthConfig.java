@@ -1,9 +1,9 @@
-package com.example.kafka.config;
+package com.example.kafka.consumer;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
@@ -19,10 +19,10 @@ public class AwsAuthConfig {
 
     @Bean
     public StsClient stsClient(
-            @Value("${aws.key.id}") String accessKeyId,
-            @Value("${aws.key.secret}") String secretKey
+        @Value("${aws.key.id}") final String accessKeyId,
+        @Value("${aws.key.secret}") final String secretKey
     ) {
-        var staticCreds = StaticCredentialsProvider.create(new AwsCredentials() {
+        final var staticCreds = StaticCredentialsProvider.create(new AwsCredentials() {
             @Override
             public String accessKeyId() {
                 return accessKeyId;
@@ -34,24 +34,23 @@ public class AwsAuthConfig {
             }
         });
         return StsClient.builder()
-                .credentialsProvider(staticCreds)
-                .region(Region.US_EAST_1)
-                .build();
+                        .credentialsProvider(staticCreds)
+                        .region(Region.US_EAST_1)
+                        .build();
     }
-
 
     @Bean
     public StsAssumeRoleCredentialsProvider credentialsProvider(
-            StsClient stsClient,
-            @Value("${aws.service.role.arn}") String roleArn) {
+        final StsClient stsClient,
+        @Value("${aws.service.role.arn}") final String roleArn) {
         return StsAssumeRoleCredentialsProvider.builder()
-                .refreshRequest(AssumeRoleRequest.builder()
-                        .durationSeconds(ASSUME_ROLE_SESSION_DURATION_SECS)
-                        .roleArn(roleArn)
-                        .roleSessionName(STS_SESSION_NAME)
-                        .build())
-                .stsClient(stsClient)
-                .build();
+                                               .refreshRequest(AssumeRoleRequest.builder()
+                                                                                .durationSeconds(ASSUME_ROLE_SESSION_DURATION_SECS)
+                                                                                .roleArn(roleArn)
+                                                                                .roleSessionName(STS_SESSION_NAME)
+                                                                                .build())
+                                               .stsClient(stsClient)
+                                               .build();
     }
 }
 
