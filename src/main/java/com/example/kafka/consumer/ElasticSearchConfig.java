@@ -4,6 +4,7 @@ import org.apache.http.HttpHost;
 import org.apache.http.HttpRequestInterceptor;
 import org.elasticsearch.client.RestClient;
 import org.elasticsearch.client.RestHighLevelClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -22,20 +23,26 @@ import software.amazon.awssdk.services.sts.auth.StsAssumeRoleCredentialsProvider
 @Configuration
 @ComponentScan
 public class ElasticSearchConfig {
-    //    @Value("${aws.es.endpoint}")
-    private final String elasticSearchEndpoint = "https://search-call-search-poc2-fgzfa5iva56446homkkvf5vqwq.us-east-1.es.amazonaws.com";
+
+    @Value("${aws.es.endpoint}")
+    private String elasticSearchEndpoint;
+
+    public static final String SERVICE_NAME = "es";
+    public static final String SERVICE_REGION = "us-east-1";
 
     @Bean
     public RestHighLevelClient client(final StsAssumeRoleCredentialsProvider credentialsProvider) {
         final AWS4Signer signer = new AWS4Signer();
-        signer.setServiceName("es");
-        signer.setRegionName("us-east-1");
-        final HttpRequestInterceptor interceptor = new AWSRequestSigningApacheInterceptor("es", signer, new AwsCredentialsProviderAdaptor(credentialsProvider));
+        signer.setServiceName(SERVICE_NAME);
+        signer.setRegionName(SERVICE_REGION);
+        final HttpRequestInterceptor interceptor = new AWSRequestSigningApacheInterceptor(SERVICE_NAME, signer, new AwsCredentialsProviderAdaptor(credentialsProvider));
         return new RestHighLevelClient(
-            RestClient.builder(HttpHost.create(elasticSearchEndpoint)).setHttpClientConfigCallback(hacb -> hacb.addInterceptorLast(interceptor))
+                RestClient.builder(HttpHost.create(elasticSearchEndpoint)).setHttpClientConfigCallback(clientBuilder -> clientBuilder.addInterceptorLast(interceptor))
         );
     }
 
+    // Converts between the 2.0 and 1.0 Aws credentials
+    // Copied from https://github.com/awslabs/aws-request-signing-apache-interceptor/issues/5
     static class AwsCredentialsProviderAdaptor implements AWSCredentialsProvider {
         private final AwsCredentialsProvider credentialsProvider;
 

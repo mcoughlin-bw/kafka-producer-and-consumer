@@ -19,8 +19,8 @@ public class AwsAuthConfig {
 
     @Bean
     public StsClient stsClient(
-        @Value("${aws.key.id}") final String accessKeyId,
-        @Value("${aws.key.secret}") final String secretKey
+            @Value("${aws.key.id}") final String accessKeyId,
+            @Value("${aws.key.secret}") final String secretKey
     ) {
         final var staticCreds = StaticCredentialsProvider.create(new AwsCredentials() {
             @Override
@@ -34,23 +34,23 @@ public class AwsAuthConfig {
             }
         });
         return StsClient.builder()
-                        .credentialsProvider(staticCreds)
-                        .region(Region.US_EAST_1)
-                        .build();
+                .credentialsProvider(staticCreds)
+                .region(Region.US_EAST_1)
+                .build();
     }
 
     @Bean
     public StsAssumeRoleCredentialsProvider credentialsProvider(
-        final StsClient stsClient,
-        @Value("${aws.service.role.arn}") final String roleArn) {
+            final StsClient stsClient,
+            @Value("${aws.service.role.arn}") final String roleArn) {
         return StsAssumeRoleCredentialsProvider.builder()
-                                               .refreshRequest(AssumeRoleRequest.builder()
-                                                                                .durationSeconds(ASSUME_ROLE_SESSION_DURATION_SECS)
-                                                                                .roleArn(roleArn)
-                                                                                .roleSessionName(STS_SESSION_NAME)
-                                                                                .build())
-                                               .stsClient(stsClient)
-                                               .build();
+                .refreshRequest(AssumeRoleRequest.builder()
+                        .durationSeconds(ASSUME_ROLE_SESSION_DURATION_SECS)
+                        .roleArn(roleArn)
+                        .roleSessionName(STS_SESSION_NAME)
+                        .build())
+                .stsClient(stsClient)
+                .build();
     }
 }
 

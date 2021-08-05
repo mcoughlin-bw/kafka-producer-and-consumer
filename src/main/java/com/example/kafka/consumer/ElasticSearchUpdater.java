@@ -30,22 +30,19 @@ public class ElasticSearchUpdater {
 
     @Value("${call.es.index}")
     private String indexName;
+
     private final RestHighLevelClient client;
 
     /**
      * Sends a batch of records to ElasticSearch
      * Returns a set of failed ES record ids
-     *
-     * @param batch
-     *
-     * @throws IOException
      */
     public Set<String> indexBatch(final List<Call> batch) {
         final BulkRequest bulkRequest = new BulkRequest(indexName);
 
         bulkRequest.add(batch.stream()
-                             .map(this::createUpdateRequest)
-                             .collect(Collectors.toList()));
+                .map(this::createUpdateRequest)
+                .collect(Collectors.toList()));
 
         BulkResponse bulkResponse = null;
         try {
@@ -59,16 +56,15 @@ public class ElasticSearchUpdater {
         }
 
         return Arrays.stream(bulkResponse.getItems())
-                     .filter(BulkItemResponse::isFailed)
-                     .map(BulkItemResponse::getId)
-                     .collect(Collectors.toSet());
+                .filter(BulkItemResponse::isFailed)
+                .map(BulkItemResponse::getId)
+                .collect(Collectors.toSet());
     }
 
     private IndexRequest createUpdateRequest(final Call record) {
         return new IndexRequest(indexName)
-            .id(record.getId())
-            .type("insights_test")
-            .source(pojoToJSON(record), XContentType.JSON);
+                .id(record.getId())
+                .source(pojoToJSON(record), XContentType.JSON);
     }
 
     private String pojoToJSON(final Call call) {
