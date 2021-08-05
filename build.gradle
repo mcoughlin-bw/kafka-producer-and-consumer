@@ -2,6 +2,7 @@ plugins {
     id 'org.springframework.boot' version '2.5.3'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
     id 'java'
+    id 'com.google.cloud.tools.jib' version '3.0.0'
 }
 
 group = 'com.example.kafka'
@@ -32,4 +33,33 @@ dependencies {
 
 test {
     useJUnitPlatform()
+}
+
+final awsAccountId = System.getProperty('awsAccountId') ?: '895545787216'
+jib {
+    from {
+//        credHelper = 'ecr-login'
+//        image = "${awsAccountId}.dkr.ecr.us-east-1.amazonaws.com/evs-adoptopenjdk:11.0.6_10-jre@sha256:4f880765690d7240f4b792ae16d858512cea89ee3d2a472b89cb22c9b5d5bd66"
+        image = "adoptopenjdk/openjdk11:jdk-11.0.9.1_1"
+    }
+    to {
+        credHelper = 'ecr-login'
+        image = "${awsAccountId}.dkr.ecr.us-east-1.amazonaws.com/kafka-consumer"
+        tags = ["v${new Date().format('yyyy-MM-dd')}-${project.version.take(6)}"]
+    }
+    container {
+        jvmFlags = ['-XX:InitialRAMPercentage=60', '-XX:MinRAMPercentage=60', '-XX:MaxRAMPercentage=60', '-XshowSettings:vm', '-XX:+HeapDumpOnOutOfMemoryError',
+                    '-Dcom.sun.management.jmxremote', '-Dcom.sun.management.jmxremote.authenticate=false', '-Dcom.sun.management.jmxremote.local.only=false',
+                    '-Dcom.sun.management.jmxremote.port=1098', '-Dcom.sun.management.jmxremote.rmi.port=1098', '-Dcom.sun.management.jmxremote.ssl=false',
+                    '-Djava.net.preferIPv4Stack=true']
+        user = 'nobody'
+        extraDirectories {
+            paths {
+                path {
+                    from = 'docker'
+                    into = '/tmp'
+                }
+            }
+        }
+    }
 }

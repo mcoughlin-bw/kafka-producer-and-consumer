@@ -63,7 +63,6 @@ public class ElasticSearchUpdater {
 
     private IndexRequest createUpdateRequest(final Call record) {
         return new IndexRequest(indexName)
-                .id(record.getId())
                 .source(pojoToJSON(record), XContentType.JSON);
     }
 
