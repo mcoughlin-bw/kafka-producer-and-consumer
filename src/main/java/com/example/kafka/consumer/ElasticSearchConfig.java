@@ -24,7 +24,7 @@ import software.amazon.awssdk.services.sts.auth.StsAssumeRoleCredentialsProvider
 @ComponentScan
 public class ElasticSearchConfig {
 
-    @Value("${aws.es.endpoint}")
+    @Value("${es.local.endpoint}")
     private String elasticSearchEndpoint;
 
     public static final String SERVICE_NAME = "es";
@@ -37,7 +37,7 @@ public class ElasticSearchConfig {
         signer.setRegionName(SERVICE_REGION);
         final HttpRequestInterceptor interceptor = new AWSRequestSigningApacheInterceptor(SERVICE_NAME, signer, new AwsCredentialsProviderAdaptor(credentialsProvider));
         return new RestHighLevelClient(
-                RestClient.builder(HttpHost.create(elasticSearchEndpoint)).setHttpClientConfigCallback(clientBuilder -> clientBuilder.addInterceptorLast(interceptor))
+            RestClient.builder(HttpHost.create(elasticSearchEndpoint)).setHttpClientConfigCallback(clientBuilder -> clientBuilder.addInterceptorLast(interceptor))
         );
     }
 
