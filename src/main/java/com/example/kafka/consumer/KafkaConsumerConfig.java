@@ -1,6 +1,7 @@
 package com.example.kafka.consumer;
 
-import com.example.kafka.model.Call;
+import java.util.Map;
+
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +13,7 @@ import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
 import org.springframework.kafka.support.serializer.JsonDeserializer;
 
-import java.util.Map;
+import com.example.kafka.model.Call;
 
 @EnableKafka
 @Configuration
@@ -22,6 +23,8 @@ public class KafkaConsumerConfig {
     private String bootstrapAddress;
     @Value("${call.es.index}")
     private String indexName;
+    @Value("${kafka.ssl.truststore.location}")
+    private String trustStore;
 
     @Bean
     public ConsumerFactory<String, Call> consumerFactory() {
@@ -30,7 +33,10 @@ public class KafkaConsumerConfig {
             ConsumerConfig.GROUP_ID_CONFIG, "insights",
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class,
             ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, JsonDeserializer.class,
-            JsonDeserializer.TRUSTED_PACKAGES, "com.example.kafka.model");
+            JsonDeserializer.TRUSTED_PACKAGES, "com.example.kafka.model"
+            //            SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, trustStore,
+            //            CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SSL"
+        );
         return new DefaultKafkaConsumerFactory<>(props);
     }
 

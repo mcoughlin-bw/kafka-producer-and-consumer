@@ -22,12 +22,19 @@ public class KafkaProducerConfig {
     @Value("${kafka.bootstrapAddress}")
     private String bootstrapAddress;
 
+    @Value("${kafka.ssl.truststore.location}")
+    private String trustStore;
+
     @Bean
     public ProducerFactory<String, Call> producerFactory() {
         final Map<String, Object> configProps = Map.of(
             ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapAddress,
             ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class,
-            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class
+            //            JsonDeserializer.TRUSTED_PACKAGES, "com.example.kafka.model",
+            //            SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG, trustStore,
+            //            CommonClientConfigs.SECURITY_PROTOCOL_CONFIG, "SSL"
+        );
         return new DefaultKafkaProducerFactory<>(configProps);
     }
 

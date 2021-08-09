@@ -24,7 +24,7 @@ import software.amazon.awssdk.services.sts.auth.StsAssumeRoleCredentialsProvider
 @ComponentScan
 public class ElasticSearchConfig {
 
-    @Value("${es.local.endpoint}")
+    @Value("${aws.es.endpoint}")
     private String elasticSearchEndpoint;
 
     public static final String SERVICE_NAME = "es";
